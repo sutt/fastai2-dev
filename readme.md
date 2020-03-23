@@ -1,6 +1,5 @@
 # Fastai2 Development / Operations Tips / Minor Projects
 
----
 
 Use this repo to track tips and tricks for testing, versioning, pull requests , etc.
 
@@ -10,14 +9,14 @@ Remote VM's concentrated on GCP, but other option documentation welcome for pull
 
 ## Repository Contents
 
-** Demo Projects **
+**Demo Projects**
 
 | Work | Link |
 | --- | --- |
-| Style Transer Homework | [project repo](./tree/master/style-transfer-hw) |
+| Style Transer Homework | [project repo](./style-transfer-hw) |
 
 
-** Development Issue **
+**Development Issue**
 
 | Topic | Description | Link |
 | --- | --- | --- |
