@@ -1,6 +1,4 @@
-# Fastai2 Development / Operations Tips
-
-and homeworks / student projects
+# Fastai2 Development / Operations Tips / Minor Projects
 
 ---
 
@@ -13,12 +11,14 @@ Remote VM's concentrated on GCP, but other option documentation welcome for pull
 ## Repository Contents
 
 ** Demo Projects **
+
 | Work | Link |
 | --- | --- |
 | Style Transer Homework | [project repo](./tree/master/style-transfer-hw) |
 
 
 ** Development Issue **
+
 | Topic | Description | Link |
 | --- | --- | --- |
 | Versioning | Conda for dependecies | [Link](./readme.md#Versioning)|
