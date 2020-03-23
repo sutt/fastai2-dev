@@ -1,16 +1,24 @@
 # Fastai2 Development / Operations Tips
 
+and homeworks / student projects
+
 ---
 
 Use this repo to track tips and tricks for testing, versioning, pull requests , etc.
 
 Remote VM's concentrated on GCP, but other option documentation welcome for pull-requests.
 
-> Last updated 2.11.20
+> Last updated 3.23.20
 
 ## Repository Contents
 
+** Demo Projects **
+| Work | Link |
+| --- | --- |
+| Style Transer Homework | [project repo](./tree/master/style-transfer-hw) |
 
+
+** Development Issue **
 | Topic | Description | Link |
 | --- | --- | --- |
 | Versioning | Conda for dependecies | [Link](./readme.md#Versioning)|
