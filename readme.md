@@ -14,6 +14,7 @@ Remote VM's concentrated on GCP, but other option documentation welcome for pull
 | Work | Link |
 | --- | --- |
 | Style Transer Homework | [project repo](./style-transfer-hw) |
+| Chess Classification Homework | [project repo](./chess-classification-hw) |
 
 
 **Development Issue**
