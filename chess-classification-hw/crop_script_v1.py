@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 from ast import literal_eval
 
 def load_np_img(img_fn):
-    img_pil = PIL.Image.open(Path(img_dir, img_fn))
+    img_pil = Image.open(Path(img_dir, img_fn))
     img_np = np.array(img_pil)
     return img_np
 
@@ -15,7 +15,7 @@ def crop_img(img, bbox):
     lx, ly, w, h = bbox
     return img[ly:ly+h,lx:lx+w ,:] 
 
-img_dir = Path('../../rf-chess-data/roboflow/export/')
+img_dir = Path('../../rf-chess-data/export/')
 save_dir = Path('../../rf-chess-data/cropped_v1')
 meta_df = 'meta-data/data_v1.csv'
 
@@ -23,6 +23,7 @@ df = pd.read_csv(meta_df)
 df['bbox'] = df['bbox'].map(lambda x: literal_eval(x))
 
 if len(sys.argv) > 1:
+    print('in here')
     df = df.iloc[:4,:]
 
 t0 = time.time()
@@ -43,7 +44,7 @@ for _i in range(len(df)):
     title += _catid
     title += ".jpg"
 
-    _imgpil = PIL.Image.fromarray(_imgcropped)
+    _imgpil = Image.fromarray(_imgcropped)
     
     _imgpil.save(save_dir / title)
 
