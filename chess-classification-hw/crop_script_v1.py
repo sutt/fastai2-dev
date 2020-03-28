@@ -15,7 +15,12 @@ def crop_img(img, bbox):
     lx, ly, w, h = bbox
     return img[ly:ly+h,lx:lx+w ,:] 
 
-img_dir = Path('../../rf-chess-data/export/')
+# cloud
+# img_dir = Path('../../rf-chess-data/export/')
+
+# locally
+img_dir = Path('../../rf-chess-data/roboflow/export')
+
 save_dir = Path('../../rf-chess-data/cropped_v1')
 meta_df = 'meta-data/data_v1.csv'
 
