@@ -6,16 +6,20 @@ from fastai2.vision.all import *
 import time
 import sys
 import json
-
+import argparse
+from pathlib import Path
 '''
 
 useful discussion of this flask as image server:
 https://gist.github.com/kylehounslow/767fb72fde2ebdd010a0bf4242371594
 
-
 '''
+ap = argparse.ArgumentParser()
+ap.add_argument("--model", type=str, default="stadard-piece-2.pkl")
+args = vars(ap.parse_args())
 
-model_fn = '../models/stadard-piece-2.pkl'
+model_dir   = Path('../models/') 
+model_fn    = model_dir / args["model"]
 
 app = Flask(__name__)
 

@@ -39,7 +39,7 @@ from clienthelpers import chart_it
 ap = argparse.ArgumentParser()
 ap.add_argument("--thinkoff",  action="store_true", default=False)
 ap.add_argument("--camnum", type=str, default="1")
-ap.add_argument("--framemod", type=str, default="60")
+ap.add_argument("--framemod", type=str, default="120")
 args = vars(ap.parse_args())
 
 
