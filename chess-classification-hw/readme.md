@@ -95,6 +95,12 @@ Here we assess (by eye) the performance of models trained on the Bing2 dataset a
 *Open Questions / Tasks*
  - how to "subtract" the background prediction from the object's prediction?
 
+ ### Experiments in Training
+
+ For the *Regulation* dataset, it looks like 150 - 200 total pieces (of balanced classes) for training is enough to get 95% accuracy on the test set. Anything below 100 pieces, fails to train.
+
+ <img src="img-public/exp_trainsize_1.jpg" width="500px"/>
+
 ### Overview of Lessons Learned
 
 This task seemed eminently do-able before I started and after working on it  awhile, realized it is quite difficult if not impossible, which helps me get a better perspective on how to structure *data-collection*, *model-building*, and *task-definition* in computer vision.

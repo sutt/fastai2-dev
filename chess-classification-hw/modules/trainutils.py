@@ -1,7 +1,20 @@
-from fastai2.vision.all import *
-from sklearn.metrics import accuracy_score
+import numpy as np
 import time
 import copy
+from pathlib import Path
+from sklearn.metrics import accuracy_score
+from fastai2.vision.all import (get_image_files, 
+                                ImageDataLoaders,
+                                RandomResizedCrop,
+                                aug_transforms,
+                                cnn_learner,
+                                L,
+                                resnet18,
+                                error_rate,
+                                
+                                )
+
+
 
 def piece_class_parse(fn): 
     fn = fn.split('_')[1]
@@ -151,4 +164,9 @@ def grid_exp(path,
     d['exps'] = exp_list.copy()
 
     return d
-    
+
+def foo():
+    return 2
+
+if __name__ == "__main__":
+    print('we guud')
