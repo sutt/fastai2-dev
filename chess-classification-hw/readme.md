@@ -14,7 +14,7 @@ Building an image classification pipeline with chess pieces. The *general machin
 
 - What kind of model architectures, hyperparameters, augmentations and pre-processing steps work well for this?
 
- | Trainging Targets  | Test-Set Targets |
+ | Training Targets  | Test-Set Targets |
 | --- | --- | 
 |   *"regulation dataset"* |   *"wooden dataset"*|
 |<img src="img-public/regulation-white-bishop-1.jpg" width="100px"/> <img src="img-public/regulation-black-knight-1.jpg" width="100px"/> | <img src="img-public/wooden-white-bishop-1.jpg" width="70px"/> <img src="img-public/wooden-black-knight-1.jpg" width="100px"/>|
@@ -51,13 +51,11 @@ Public dataset [here.](https://public.roboflow.ai/object-detection/chess-full) w
 ------
 ### Build Cropped Images
 
-Convert the photos of the full board with (possibly) many pieces to one bounded using the built using this script.
+Convert the photos of the full board with (possibly) many pieces to one bounded using the built using this script. This applies to the *Regulation Dataset*.
 
 | Input | Output |
 | --- | --- |
 | <img src="img-public/full_board_1.jpg" width="400px"/> | <img src="img-public/crop_piece_1.jpg" width="150px"/> | 
-
-TODO - add a Clean images dataset
 
 ### Train Models
 
@@ -67,7 +65,6 @@ Following the class exercise's direction, ResNet18 seems to work exceedingly wel
 | --- | --- |
 | <img src="img-public/cf_regulation_1.jpg" width="300px"/> | <img src="img-public/cf_bing_2.jpg" width="300px"/> | 
 
-TODO - add Bing Dataset2
 
 
 ### Local real-time production app
@@ -97,7 +94,6 @@ Here we assess (by eye) the performance of models trained on the Bing2 dataset a
 
 *Open Questions / Tasks*
  - how to "subtract" the background prediction from the object's prediction?
- - perform on glass pieces
 
 ### Overview of Lessons Learned
 
