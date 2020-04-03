@@ -27,15 +27,21 @@ from modules.clienthelpers import (ping, draw, annotate_class, annotate_think)
         cv2.VideoCapture, so we run that in Window's in the 
         `base` conda environment (which has cv2 library)
 
-    use browser to view prediction of last snap at: 
-        localhost:5000/log
-
     CLI args:
 
     --thinkoff  (bool flag) - turn off printing progressbar at bottom
     --camnum    (int)       - 0:front facing, 1:rear facing
     --framemod  (int)       - how many frames to read before sending request
     --debug     (bool flag) - print to console (for timing issues)
+
+    Other notes:
+
+        use browser to view prediction of last snap at: 
+            127.0.0.1:5000/log
+
+        use 127.0.0.1 instead of localhost for a reqeust-response
+        speedup of 2.2 sec -> 0.14 sec
+            https://stackoverflow.com/questions/11150343/slow-requests-on-local-flask-server
 
 '''
 
@@ -66,7 +72,7 @@ response_text       = None
 b_reset_think       = True
 b_snap              = False
 think_counter       = 0
-mod_think_counter   = framemod // 15
+mod_think_counter   = max(framemod // 15, 1)
 
 camera = cv2.VideoCapture(cam_num)
 
@@ -80,7 +86,7 @@ while(camera.isOpened()):
         response_text = q.get(False)  
         b_reset_think = True
         t1 = time.time()
-        if b_debug: print(f"~~~~ server response time: {round(t1 - t0,0)}")
+        if b_debug: print(f"~~~~ server response time: {round(t1 - t0,4)}")
     except queue.Empty:
         pass
     except:

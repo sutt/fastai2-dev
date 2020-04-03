@@ -10,7 +10,7 @@ from matplotlib import pyplot as plt
 
 def ping(img, q, b_debug=False):
     
-    addr = 'http://localhost:5000'
+    addr = 'http://127.0.0.1:5000'
     test_url = addr + '/pred'
 
     content_type = 'image/jpeg'
@@ -38,34 +38,28 @@ def ping(img, q, b_debug=False):
     if b_debug: print('\n~~~~ end of request...')
 
 
-def draw_rect(img, rect, color='yellow', thick=3):
-    COLOR = (0, 255, 255)
-    if color == 'blue':
-        COLOR = (255,0,0)
-    cv2.rectangle(img, rect[0], rect[1], COLOR, thick)
-    return img
 
-
-def draw(frame, rect, thick=3):
-    '''450, 600 '''
-    # ((x0,  y0),  (x1, y1))
+def draw(frame, rect, thick=3, color=(0,255,255)):
+    
     x0, y0, x1, y1 = rect[0][0], rect[0][1], rect[1][0], rect[1][1]
-    frame = draw_rect( frame
-                    ,((x0-thick, y0-thick),(x1+thick, y1+thick))
-                    ,color='yellow'
-                    ,thick = thick
-                    )
+
+    cv2.rectangle(frame, (x0-thick, y0-thick), (x1+thick, y1+thick),
+                 color, thick)
+
     return frame
+
 
 def annotate(frame, text):
     font = cv2.FONT_HERSHEY_SIMPLEX
     return cv2.putText(frame,text,(50,50), font, 1.4,
                         (255,255,255),2,cv2.LINE_AA)
 
+
 def annotate_class(frame, text):
     font = cv2.FONT_HERSHEY_SIMPLEX
     return cv2.putText(frame,text,(50,40), font, 1.4,
                         (255,255,255),2,cv2.LINE_AA)
+
 
 def annotate_think(frame, b_snap, think_counter):
     font = cv2.FONT_HERSHEY_SIMPLEX
