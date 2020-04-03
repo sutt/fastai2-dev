@@ -17,13 +17,32 @@ from fastai2.vision.all import (get_image_files,
 
 
 def piece_class_parse(fn): 
+    ''' 01415_white-rook.jpg -> white-rook '''
     fn = fn.split('_')[1]
     fn = fn.split('.')[0]
     return fn
 
-def stratify_sample(path, n=100, np_seed=None):
+
+def only_class_parse(fn):
+    ''' 01415_white-rook.jpg -> rook '''
+    fn = fn.split('_')[1]
+    fn = fn.split('-')[1]
+    fn = fn.split('.')[0]
+    return fn
+
+def filter_piece_color(path, color='white'):
+    fns = get_image_files(path)
+    color_pieces = [i for i,v in enumerate(fns)
+                    if color in v.name]
+    return L([fns[i] for i in color_pieces])
+
+
+def stratify_sample(path, n=100, np_seed=None, color=None):
     
     fns = get_image_files(path)
+
+    if color is not None:
+        fns = filter_piece_color(path, color=color)
     
     if np_seed is not None:
         np.random.seed(np_seed)
