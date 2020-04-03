@@ -27,12 +27,15 @@ from modules.clienthelpers import (ping, draw, annotate_class, annotate_think)
         cv2.VideoCapture, so we run that in Window's in the 
         `base` conda environment (which has cv2 library)
 
+    use browser to view prediction of last snap at: 
+        localhost:5000/log
+
     CLI args:
 
     --thinkoff  (bool flag) - turn off printing progressbar at bottom
     --camnum    (int)       - 0:front facing, 1:rear facing
     --framemod  (int)       - how many frames to read before sending request
-    --debug     (int)       - print to console (for timing issues)
+    --debug     (bool flag) - print to console (for timing issues)
 
 '''
 
@@ -43,11 +46,15 @@ ap.add_argument("--framemod", type=str, default="120")
 ap.add_argument("--debug",  action="store_true", default=False)
 args = vars(ap.parse_args())
 
+                  # ((x0,  y0),  (x1, y1))
+frame_rect =        ((200, 100), (400,300))
+                   
+# frame_rect =        ((200,50), (400, 400))
+
 
 cam_num             = int(args['camnum'])
 framemod            = int(args['framemod'])
 b_think_annotate    = not(args['thinkoff'])
-
 
 b_debug             = args['debug']
 
@@ -67,7 +74,7 @@ while(camera.isOpened()):
 
     grabbed, frame = camera.read()
     frame = imutils.resize(frame, width=600)
-    frame = draw(frame)
+    frame = draw(frame,frame_rect)
     
     try:
         response_text = q.get(False)  
@@ -85,18 +92,13 @@ while(camera.isOpened()):
         
     frame = annotate_class(frame, response_text)
 
-    # if response_text != 'starting...':
-        # chart_it([1 for _ in range(12)])
-        # for later, once non-blocking is figured out
-
-    
     if b_think_annotate:
 
         frame = annotate_think( frame,
                                 b_snap, 
                                 int(think_counter // mod_think_counter))
     
-    cv2.imshow("Hello Video", frame)
+    cv2.imshow("RealTime Image Classifier", frame)
 
     if counter % framemod == 0:
 
@@ -105,9 +107,11 @@ while(camera.isOpened()):
         think_counter = 0
         t0 = time.time()
         
+        ((x0,  y0),  (x1, y1)) = frame_rect
+
         t = threading.Thread(target = ping, 
                              args = (
-                                 frame[50:400,200:400,:],
+                                 frame[y0:y1, x0:x1,:],
                                  q,
                                  b_debug
                                  ) )

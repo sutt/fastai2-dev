@@ -18,15 +18,24 @@ def ping(img, q, b_debug=False):
 
     _, img_encoded = cv2.imencode('.jpg', img)
 
-    if b_debug: print('~~~~ sending request...')
-
-    response = requests.post(test_url, 
-                            data=img_encoded.tostring(), 
-                            headers=headers)
-    response_json = response.json()
-    q.put(response_json['pred-class-name'])
+    if b_debug: print('~~~~ sending request...\n')
     
-    if b_debug: print(response_json)
+    try:
+        response = requests.post(test_url, 
+                                data=img_encoded.tostring(), 
+                                headers=headers)
+        
+        response_json = response.json()
+        
+        q.put(response_json['pred-class-name'])
+        
+        if b_debug: print(response_json)
+    
+    except Exception as e:
+        print('Could not connect to server; make sure predserver.py is running')
+        # print(e)  #uncomment for debugging
+    
+    if b_debug: print('\n~~~~ end of request...')
 
 
 def draw_rect(img, rect, color='yellow', thick=3):
@@ -37,12 +46,14 @@ def draw_rect(img, rect, color='yellow', thick=3):
     return img
 
 
-def draw(frame):
+def draw(frame, rect, thick=3):
     '''450, 600 '''
+    # ((x0,  y0),  (x1, y1))
+    x0, y0, x1, y1 = rect[0][0], rect[0][1], rect[1][0], rect[1][1]
     frame = draw_rect( frame
-                    ,((200,50), (400, 400))
+                    ,((x0-thick, y0-thick),(x1+thick, y1+thick))
                     ,color='yellow'
-                    ,thick = 3
+                    ,thick = thick
                     )
     return frame
 
