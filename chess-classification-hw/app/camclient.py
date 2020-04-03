@@ -6,8 +6,7 @@ import cv2
 import imutils
 import time
 import argparse
-from clienthelpers import (ping, draw, annotate_class, annotate_think)
-from clienthelpers import chart_it
+from modules.clienthelpers import (ping, draw, annotate_class, annotate_think)
 
 
 '''
@@ -16,11 +15,11 @@ from clienthelpers import chart_it
     launch flask server (terminal1):
         /app> wsl
         /app> conda activate fastai2
-        /app> python flask.py
+        /app> python predserver.py  [--log] [--debug] [--model <model_path>]
 
     run video client (terminal2):
         /app> conda activate base
-        /app> python loopclient1.py
+        /app> python camclient.py  [--log] [--debug] [--framemod <int>] [--camnum <int>]
 
     note on deployment:
         model predcition server run's in the `fastai2` 
@@ -33,6 +32,7 @@ from clienthelpers import chart_it
     --thinkoff  (bool flag) - turn off printing progressbar at bottom
     --camnum    (int)       - 0:front facing, 1:rear facing
     --framemod  (int)       - how many frames to read before sending request
+    --debug     (int)       - print to console (for timing issues)
 
 '''
 
@@ -40,6 +40,7 @@ ap = argparse.ArgumentParser()
 ap.add_argument("--thinkoff",  action="store_true", default=False)
 ap.add_argument("--camnum", type=str, default="1")
 ap.add_argument("--framemod", type=str, default="120")
+ap.add_argument("--debug",  action="store_true", default=False)
 args = vars(ap.parse_args())
 
 
@@ -48,17 +49,17 @@ framemod            = int(args['framemod'])
 b_think_annotate    = not(args['thinkoff'])
 
 
-b_debug             = False
+b_debug             = args['debug']
 
 q                   = queue.Queue()
-counter             = 0
+counter             = -10
 b_starting_thread   = True
 response_text       = None
 
 b_reset_think       = True
 b_snap              = False
 think_counter       = 0
-mod_think_counter   = 3
+mod_think_counter   = framemod // 15
 
 camera = cv2.VideoCapture(cam_num)
 
@@ -72,7 +73,7 @@ while(camera.isOpened()):
         response_text = q.get(False)  
         b_reset_think = True
         t1 = time.time()
-        if b_debug: print(f"server response time: {round(t1 - t0,0)}")
+        if b_debug: print(f"~~~~ server response time: {round(t1 - t0,0)}")
     except queue.Empty:
         pass
     except:

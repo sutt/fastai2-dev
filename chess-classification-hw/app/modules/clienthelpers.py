@@ -7,23 +7,6 @@ import imutils
 import time
 from matplotlib import pyplot as plt
 
-x_axis = [
-    'black-bishop',
-    'black-king',
-    'black-knight',
-    'black-pawn',
-    'black-queen',
-    'black-rook',
-    'white-bishop',
-    'white-king',
-    'white-knight',
-    'white-pawn',
-    'white-queen',
-    'white-rook']
-
-def chart_it(y, x_axis=x_axis):
-    plt.bar(x_axis, y)
-    plt.show()
 
 def ping(img, q, b_debug=False):
     
@@ -33,16 +16,18 @@ def ping(img, q, b_debug=False):
     content_type = 'image/jpeg'
     headers = {'content-type': content_type}
 
-    # img = cv2.imread('../img-tmp/black-knight-2.jpg')
-
     _, img_encoded = cv2.imencode('.jpg', img)
+
+    if b_debug: print('~~~~ sending request...')
 
     response = requests.post(test_url, 
                             data=img_encoded.tostring(), 
                             headers=headers)
     response_json = response.json()
     q.put(response_json['pred-class-name'])
+    
     if b_debug: print(response_json)
+
 
 def draw_rect(img, rect, color='yellow', thick=3):
     COLOR = (0, 255, 255)
@@ -50,6 +35,7 @@ def draw_rect(img, rect, color='yellow', thick=3):
         COLOR = (255,0,0)
     cv2.rectangle(img, rect[0], rect[1], COLOR, thick)
     return img
+
 
 def draw(frame):
     '''450, 600 '''
