@@ -1,6 +1,7 @@
 import numpy as np
 import time
 import copy
+import os
 from pathlib import Path
 import torch
 from sklearn.metrics import accuracy_score
@@ -62,6 +63,11 @@ def stratify_sample(path, n=100, np_seed=None, color=None):
         
     return L([fns[i] for i in rand_inds])
 
+def silent_learner(learn):
+    '''remove cbs: Recorder,ProgressCallback '''
+    learn.cbs.pop(2)
+    learn.cbs.pop(1)
+
 
 def my_metrics(learn, dl):
 
@@ -77,11 +83,74 @@ def my_metrics(learn, dl):
     
     return loss, acc
 
+def my_test_metrics(learn, test_path):
+    
+    test_dl = learn.dls.test_dl(get_image_files(test_path), 
+                                with_labels=True)
+    
+    return my_metrics(learn, test_dl)
+
+
 def show_cf(learn, dl):
     interp = ClassificationInterpretation.from_learner(learn, dl=dl)
     interp.plot_confusion_matrix()
     return interp
 
+def my_export(learn, model_fn='tmp-model.pkl'):
+    ' to verify run: !ls ../models -sh '
+    old_path = learn.path
+    learn.path = Path('../models')
+    learn.export(model_fn)
+    learn.path = old_path
+
+def new_file(fns, prefix='moda', ext='.pkl'):
+    '''
+        return a new file name with:
+            same prefix,
+            new "-<num>"
+            same ext
+    '''
+    elems = [fn for fn in fns 
+             if fn[:len(prefix)] == prefix]
+    
+    elems = [e for e in elems
+             if e[-len(ext):] == ext]
+    
+    elems = [e.split('.')[0] for e in elems]
+    
+    def get_num(s):
+        try: 
+            num = s.split('-')[-1] 
+            num = int(num)
+            return num
+        except: 
+            return -1
+        
+    elems = [get_num(e) for e in elems]
+    
+    if len(elems) == 0:
+        new_num = 0
+    else:
+        new_num = max(elems) + 1
+    
+    new_fn = prefix + '-' + str(new_num) + '.pkl'
+    
+    return new_fn
+    
+
+def my_export_new(learn, fn_dir = '../models', prefix='expmod-a', ext='.pkl',
+                  print_check=False):
+
+    fns = os.listdir(fn_dir)
+    new_fn = new_file(fns, prefix=prefix, ext=ext)
+    my_export(learn, model_fn=new_fn)
+
+    if print_check:
+        the_file = [fn for fn in os.listdir(fn_dir) if fn == new_fn]
+        if len(the_file) == 0:
+            print(f'no new file {new_fn} found in {fn_dir}')
+        else:
+            print(f'found new file {new_fn} in {fn_dir}')
 
 
 def my_acc(learn, test):
