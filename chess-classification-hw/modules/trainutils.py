@@ -152,6 +152,8 @@ def my_export_new(learn, fn_dir = '../models', prefix='expmod-a', ext='.pkl',
         else:
             print(f'found new file {new_fn} in {fn_dir}')
 
+    return new_fn
+
 
 def my_acc(learn, test):
 
