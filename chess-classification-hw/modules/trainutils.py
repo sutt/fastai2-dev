@@ -2,6 +2,7 @@ import numpy as np
 import time
 import copy
 from pathlib import Path
+import torch
 from sklearn.metrics import accuracy_score
 from fastai2.vision.all import (get_image_files, 
                                 ImageDataLoaders,
@@ -11,7 +12,8 @@ from fastai2.vision.all import (get_image_files,
                                 L,
                                 resnet18,
                                 error_rate,
-                                
+                                ClassificationInterpretation,
+
                                 )
 
 
@@ -61,6 +63,27 @@ def stratify_sample(path, n=100, np_seed=None, color=None):
     return L([fns[i] for i in rand_inds])
 
 
+def my_metrics(learn, dl):
+
+    preds_test = learn.get_preds(dl=dl, with_loss=True)
+
+    y_actual = preds_test[1].tolist()
+    y_hat = torch.argmax(preds_test[0], dim=1).tolist()
+    y_loss = preds_test[2].tolist()
+
+    acc = accuracy_score(y_actual, y_hat)
+
+    loss = sum(y_loss) / len(dl.items)
+    
+    return loss, acc
+
+def show_cf(learn, dl):
+    interp = ClassificationInterpretation.from_learner(learn, dl=dl)
+    interp.plot_confusion_matrix()
+    return interp
+
+
+
 def my_acc(learn, test):
 
     preds_train = [learn.predict(item) for item in learn.dls.train.items]
@@ -77,17 +100,31 @@ def my_acc(learn, test):
     return acc_t, acc_v
 
 
-def build_dl(path, n, seed):
+def build_dl(path, n=None, seed=None):
 
-    dl = ImageDataLoaders.from_name_func(
-                path, 
-                stratify_sample(path, n=n, np_seed=seed),
-                valid_pct=0.0, 
-                seed=None,      # randomSplitter has no effect
-                label_func=piece_class_parse, 
-                item_tfms=RandomResizedCrop(128, min_scale=0.5),
-                batch_tfms=aug_transforms(),
-                )
+    if n is None:
+        
+        dl = ImageDataLoaders.from_name_func(
+                    path, 
+                    get_image_files(path),
+                    valid_pct=0.0, 
+                    seed=seed,      # randomSplitter has no effect
+                    label_func=piece_class_parse, 
+                    item_tfms=RandomResizedCrop(128, min_scale=0.5),
+                    batch_tfms=aug_transforms(),
+                    )
+
+    else:
+
+        dl = ImageDataLoaders.from_name_func(
+                    path, 
+                    stratify_sample(path, n=n, np_seed=seed),
+                    valid_pct=0.0, 
+                    seed=seed,      # randomSplitter has no effect
+                    label_func=piece_class_parse, 
+                    item_tfms=RandomResizedCrop(128, min_scale=0.5),
+                    batch_tfms=aug_transforms(),
+                    )
     return dl
 
 
