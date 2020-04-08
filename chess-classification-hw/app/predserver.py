@@ -9,7 +9,12 @@ import argparse
 from pathlib import Path
 from fastai2.vision.all import *
 
-from modules.plothelpers import response_plot
+from appmodules.plothelpers import response_plot
+
+# little hack here so `load_learner()`
+# can find ../modules/trainutils `piece_class_parse` to load 
+# the model. Also why we call the app's pkg dir `appmodules`
+sys.path.insert(0, '..')
 
 '''
     activate fastai2 conda-env in wsl before running server:
@@ -26,7 +31,7 @@ from modules.plothelpers import response_plot
 '''
 
 ap = argparse.ArgumentParser()
-ap.add_argument("--model", type=str, default="stadard-piece-2.pkl")
+ap.add_argument("--model", type=str, default="expmod-b-1.pkl")
 ap.add_argument("--debug", action="store_true", default=False)
 ap.add_argument("--log", action="store_true", default=False)
 args = vars(ap.parse_args())

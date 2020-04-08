@@ -6,7 +6,7 @@ import cv2
 import imutils
 import time
 import argparse
-from modules.clienthelpers import (ping, draw, annotate_class, annotate_think)
+from appmodules.clienthelpers import (ping, draw, annotate_class, annotate_think)
 
 
 '''
@@ -48,7 +48,7 @@ from modules.clienthelpers import (ping, draw, annotate_class, annotate_think)
 ap = argparse.ArgumentParser()
 ap.add_argument("--thinkoff",  action="store_true", default=False)
 ap.add_argument("--camnum", type=str, default="1")
-ap.add_argument("--framemod", type=str, default="120")
+ap.add_argument("--framemod", type=str, default="30")
 ap.add_argument("--debug",  action="store_true", default=False)
 args = vars(ap.parse_args())
 
