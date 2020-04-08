@@ -69,15 +69,15 @@ Following the class exercise's direction, ResNet18 seems to work exceedingly wel
 
 ### Local real-time production app
 
-This app runs "real time" meaning the webcame is always on and the app is making a prediction based on content (inside the yellow bounding box) every 2 seconds (configurable).
+This app runs "real time" meaning the webcame is always on and the app is making a prediction based on content (inside the yellow bounding box) every second (configurable with `--framemod <every-N-frames>`).
 
-<img src="img-public/app1.gif"/>
+<img src="img-public/rt-1.gif"/>
 
 This uses a client/local-server architecture. The reason is I run my `fastai2` conda environment in WSL (linux virtual machine) but I can't use that for grabbing frames from my webcam. Therefore the client runs in windows and handles the `opencv` and webcam stuff and posts image data (via `requests`) to a flask server running in WSL which has a trained `learner` loaded and can predict the class of the piece.
 
-Open Questions / Tasks:
- - how to display predict_proba for each class in matplotlib in a non-blocking fashion?
- - extend this to a remote server
+In addition we can examine the predictions in depth of a live image using the flask server's `/log` route which shows info like this:
+
+<img src="img-public/example_log_1.jpg" width="400px"/>
 
 ### Train on DatasetA - Test on DatasetB
 
