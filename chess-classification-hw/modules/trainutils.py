@@ -14,6 +14,10 @@ from fastai2.vision.all import (get_image_files,
                                 resnet18,
                                 error_rate,
                                 ClassificationInterpretation,
+                                flatten_check,
+                                accuracy,
+                                TensorCategory,
+                                Callback,
 
                                 )
 
@@ -63,10 +67,86 @@ def stratify_sample(path, n=100, np_seed=None, color=None):
         
     return L([fns[i] for i in rand_inds])
 
+
+class SecondRecorder(Callback):
+    def __init__(self, ds_idx=2, **kwargs):
+        self.values = []
+        self.ds_idx = ds_idx
+    
+    def after_epoch(self):
+        old_log = self.recorder.log.copy()
+        self.learn._do_epoch_validate(ds_idx=self.ds_idx, dl=None)
+        self.values.append(self.recorder.log[len(old_log):])
+        self.recorder.log = old_log
+        
+
+
 def silent_learner(learn):
     '''remove cbs: Recorder,ProgressCallback '''
     learn.cbs.pop(2)
     learn.cbs.pop(1)
+
+d_fullclass = {
+0: 'black-bishop',
+ 1: 'black-king',
+ 2: 'black-knight',
+ 3: 'black-pawn',
+ 4: 'black-queen',
+ 5: 'black-rook',
+ 6: 'white-bishop',
+ 7: 'white-king',
+ 8: 'white-knight',
+ 9: 'white-pawn',
+ 10: 'white-queen',
+ 11: 'white-rook'}
+
+d_colorclass = {'black':0, 'white':1}
+d_piececlass = {'bishop':1, 'king':1, 'knight':2, 'pawn':3, 'queen':4,'rook':5}
+
+def subcat_parse(class_label, color=False, piece=False):
+    color_label, piece_label = class_label.split('-')
+    color_ind = d_colorclass[color_label]
+    piece_ind = d_piececlass[piece_label]
+    if color: return color_ind
+    if piece: return piece_ind
+    return color_ind, piece_ind
+
+
+def my_subcat_acc(learn, dl):
+
+    preds_test = learn.get_preds(dl=dl, with_loss=True)
+
+    y_actual = preds_test[1].tolist()
+    y_hat = torch.argmax(preds_test[0], dim=1).tolist()
+    y_loss = preds_test[2].tolist()
+
+    y_actual_color = [subcat_parse(d_fullclass[e], color=True) for e in y_actual]
+    y_actual_piece = [subcat_parse(d_fullclass[e], piece=True) for e in y_actual]
+
+    y_hat_color = [subcat_parse(d_fullclass[e], color=True) for e in y_hat]
+    y_hat_piece = [subcat_parse(d_fullclass[e], piece=True) for e in y_hat]
+
+    acc_color = accuracy_score(y_actual_color, y_hat_color)
+    acc_piece = accuracy_score(y_actual_piece, y_hat_piece)
+
+    return acc_color, acc_piece
+
+def subcat_color_acc(inp, targ, axis=-1):
+    pred,targ = flatten_check(inp.argmax(dim=axis), targ)
+    targ_color = torch.tensor([subcat_parse(d_fullclass[e], color=True) 
+                                for e in targ.tolist()])
+    pred_color = TensorCategory([subcat_parse(d_fullclass[e], color=True) 
+                                for e in pred.tolist()])
+    return (pred_color == targ_color).float().mean()
+
+def subcat_piece_acc(inp, targ, axis=-1):
+    pred,targ = flatten_check(inp.argmax(dim=axis), targ)
+    targ_piece = torch.tensor([subcat_parse(d_fullclass[e], piece=True) 
+                                for e in targ.tolist()])
+    pred_piece = TensorCategory([subcat_parse(d_fullclass[e], piece=True) 
+                                for e in pred.tolist()])
+    return (pred_piece == targ_piece).float().mean()
+
 
 
 def my_metrics(learn, dl):
@@ -89,6 +169,8 @@ def my_test_metrics(learn, test_path):
                                 with_labels=True)
     
     return my_metrics(learn, test_dl)
+
+
 
 
 def show_cf(learn, dl):
