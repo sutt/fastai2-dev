@@ -68,18 +68,6 @@ def stratify_sample(path, n=100, np_seed=None, color=None):
     return L([fns[i] for i in rand_inds])
 
 
-class SecondRecorder(Callback):
-    def __init__(self, ds_idx=2, **kwargs):
-        self.values = []
-        self.ds_idx = ds_idx
-    
-    def after_epoch(self):
-        old_log = self.recorder.log.copy()
-        self.learn._do_epoch_validate(ds_idx=self.ds_idx, dl=None)
-        self.values.append(self.recorder.log[len(old_log):])
-        self.recorder.log = old_log
-        
-
 
 def silent_learner(learn):
     '''remove cbs: Recorder,ProgressCallback '''
@@ -163,6 +151,7 @@ def my_metrics(learn, dl):
     
     return loss, acc
 
+
 def my_test_metrics(learn, test_path):
     
     test_dl = learn.dls.test_dl(get_image_files(test_path), 
@@ -171,12 +160,11 @@ def my_test_metrics(learn, test_path):
     return my_metrics(learn, test_dl)
 
 
-
-
 def show_cf(learn, dl):
     interp = ClassificationInterpretation.from_learner(learn, dl=dl)
     interp.plot_confusion_matrix()
     return interp
+
 
 def my_export(learn, model_fn='tmp-model.pkl'):
     ' to verify run: !ls ../models -sh '
@@ -185,7 +173,8 @@ def my_export(learn, model_fn='tmp-model.pkl'):
     learn.export(model_fn)
     learn.path = old_path
 
-def new_file(fns, prefix='moda', ext='.pkl'):
+
+def new_file(fns, prefix='moda', ext='.pkl', new_ext='.pkl'):
     '''
         return a new file name with:
             same prefix,
@@ -215,7 +204,10 @@ def new_file(fns, prefix='moda', ext='.pkl'):
     else:
         new_num = max(elems) + 1
     
-    new_fn = prefix + '-' + str(new_num) + '.pkl'
+    new_fn = prefix + '-' + str(new_num)
+
+    if new_ext is not None:
+        new_fn += new_ext
     
     return new_fn
     
