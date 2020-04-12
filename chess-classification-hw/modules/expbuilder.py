@@ -232,6 +232,7 @@ default_params = {
 
 def run_exp(params, 
             name_base,
+            b_cuda=True,
             b_subcat_metrics=True,
             b_msg=True,
             msg_cols=['valid_loss', 'accuracy', 'test_loss', 'test_accuracy']
@@ -332,7 +333,7 @@ def run_exp(params,
     
     learn = cnn_learner(train_dl, _model_arch, metrics=learn_metrics)
 
-    learner_add_testset(learn, test_dl)
+    learner_add_testset(learn, test_dl, b_cuda=b_cuda)
 
     learn.add_cb(TestSetRecorder())
 
