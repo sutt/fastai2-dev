@@ -34,8 +34,9 @@ class TestSetRecorder(Callback):
         self.values.append(self.recorder.log[len(old_log):])
         self.recorder.log = old_log
 
-def learner_add_testset(learn, test_dl):
+def learner_add_testset(learn, test_dl, b_cuda=False):
     new_dl = DataLoaders(learn.dls[0], learn.dls[1], test_dl.train)
+    if b_cuda: new_dl.cuda()
     learn.dls = new_dl
 
 
