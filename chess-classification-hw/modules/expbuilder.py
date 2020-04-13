@@ -40,7 +40,8 @@ from .trainutils import (piece_class_parse,
 
 from .learnutils import (get_cb,
                          TestSetRecorder,
-                         learner_add_testset
+                         learner_add_testset,
+                        ignore_first_testset_callback
 
                         )
 
@@ -93,6 +94,7 @@ def save_learner_logs(learn,
         except:
             print('error printing stats from run')
 
+
 def save_residual_log(learn,
                       name,
                       log_path = '../models/model-logs/'
@@ -142,14 +144,18 @@ def save_learner_params(d_params,
 
 def make_new_fn(fn_dir, name_base):
     ''' 
-        "bn"   {...} -> "bn-0"
+        name_base  fn_dir                -> output
+        
+        "bn"       {...}                 -> "bn-1"
 
-        "bn" {bn-1, bn-3, misc-2} -> "bn-4"
+        "bn"        {bn-1, bn-3, misc-5} -> "bn-4"
 
     '''
     fns = os.listdir(fn_dir)
 
     elems = [fn for fn in fns if name_base in fn]
+    elems = [fn.split('.')[0] for fn in elems]
+    elems = [fn.split('_')[0] for fn in elems]
 
     def get_num(s):
         try: 
@@ -380,6 +386,10 @@ def run_exp(params,
     with learn.no_logging(): learn.fit_one_cycle(_fit_one_cycle_epochs)
 
     valid_df_1 = save_learner_logs(learn, name="dummy", b_return_valid=True)
+
+    # fine_tune(N) produces N+1 after_epoch triggers; twice on first epoch.
+    # here we'll tell the  callback to not log on the first event.
+    ignore_first_testset_callback(learn)
 
     with learn.no_logging(): learn.fine_tune(_fine_tune_epochs)
 

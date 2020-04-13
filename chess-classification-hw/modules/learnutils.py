@@ -27,12 +27,19 @@ class TestSetRecorder(Callback):
     def __init__(self, ds_idx=2, **kwargs):
         self.values = []
         self.ds_idx = ds_idx
+        self.counter = 0
+        self.skip_counter = None
     
     def after_epoch(self):
+        if self.skip_counter is not None:
+            if self.counter < self.skip_counter: return
+            print('ignoring!')
         old_log = self.recorder.log.copy()
         self.learn._do_epoch_validate(ds_idx=self.ds_idx, dl=None)
         self.values.append(self.recorder.log[len(old_log):])
         self.recorder.log = old_log
+        self.counter += 1
+
 
 def learner_add_testset(learn, test_dl, b_cuda=False):
     new_dl = DataLoaders(learn.dls[0], learn.dls[1], test_dl.train)
@@ -46,3 +53,8 @@ def get_cb_index(learn, cb_name):
 
 def get_cb(learn, cb_name):
     return learn.cbs[get_cb_index(learn, cb_name)]
+
+def ignore_first_testset_callback(learn):
+    test_recorder =  get_cb(learn, 'TestSetRecorder')
+    test_recorder.counter = 0
+    test_recorder.skip_counter = 1
