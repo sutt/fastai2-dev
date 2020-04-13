@@ -31,14 +31,13 @@ class TestSetRecorder(Callback):
         self.skip_counter = None
     
     def after_epoch(self):
+        self.counter += 1
         if self.skip_counter is not None:
             if self.counter < self.skip_counter: return
-            print('ignoring!')
         old_log = self.recorder.log.copy()
         self.learn._do_epoch_validate(ds_idx=self.ds_idx, dl=None)
         self.values.append(self.recorder.log[len(old_log):])
         self.recorder.log = old_log
-        self.counter += 1
 
 
 def learner_add_testset(learn, test_dl, b_cuda=False):
@@ -55,6 +54,6 @@ def get_cb(learn, cb_name):
     return learn.cbs[get_cb_index(learn, cb_name)]
 
 def ignore_first_testset_callback(learn):
-    test_recorder =  get_cb(learn, 'TestSetRecorder')
-    test_recorder.counter = 0
-    test_recorder.skip_counter = 1
+    test_recorder_ind =  get_cb_index(learn, 'TestSetRecorder')
+    learn.cbs[test_recorder_ind].counter = -1
+    learn.cbs[test_recorder_ind].skip_counter = 1

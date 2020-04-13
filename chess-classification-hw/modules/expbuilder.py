@@ -50,6 +50,40 @@ from .learnutils import (get_cb,
 
 
 '''
+class LearnerLogs:
+
+    def __init__(self):
+        self.df_valid = None
+        self.df_test = None
+
+    def get_learner_logs(self, learn):
+        
+        valid_recorder = get_cb(learn, 'Recorder')
+        test_recorder =  get_cb(learn, 'TestSetRecorder')
+
+        # remove `epoch` + `time`, get all customizable metrics
+        cols = valid_recorder.metric_names[1:-1]
+        
+        df_valid = pd.DataFrame(valid_recorder.values, columns = cols)
+        
+        cols = ['loss']
+        cols += [e.name for e in valid_recorder.metrics]
+        cols = ['test_' + col for col in cols]
+
+        df_test = pd.DataFrame(test_recorder.values, columns = cols)
+
+        return df_valid, df_test
+
+    def save_learner_log_values(self, learn):
+        
+        df_valid, df_test = self.get_learner_logs(learn)
+
+        self.df_valid = df_valid
+        self.df_test = df_test
+
+    def balh(self):
+        pass
+
 
 def save_learner_logs(learn, 
                       name,
@@ -172,7 +206,7 @@ def make_new_fn(fn_dir, name_base):
     else:
         new_num = max(elems) + 1
 
-    return name_base + '-' + str(new_num + 1)
+    return name_base + '-' + str(new_num)
 
 
 def save_learner(learn,
