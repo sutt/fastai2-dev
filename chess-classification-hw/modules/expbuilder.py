@@ -255,7 +255,7 @@ default_params = {
         '_train_name':              'rf-v1-crops',
         '_test_name':               'test-regulation-2-all',
         '_train_path':              Path('../../../rf-chess-data/cropped_v1/'),
-        '_test_path':               Path('../../../other-chess-data/regulation-test-all/'),
+        '_test_path':               Path('../../../other-chess-data/regulation-test-2-all/'),
         '_model_arch':              resnet50,
         '_fit_one_cycle_epochs':    10,
         '_fine_tune_epochs':        15,
