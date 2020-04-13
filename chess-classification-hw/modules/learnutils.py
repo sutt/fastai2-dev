@@ -45,6 +45,15 @@ def learner_add_testset(learn, test_dl, b_cuda=False):
     if b_cuda: new_dl.cuda()
     learn.dls = new_dl
 
+def learner_add_testset_2(learn, test_path, b_cuda=False):
+    
+    built_test = learn.dls.test_dl(get_image_files(test_path), 
+                                with_labels=True)
+
+    new_dl = DataLoaders(learn.dls[0], learn.dls[1], built_test)
+    if b_cuda: new_dl.cuda()
+    learn.dls = new_dl
+
 
 def get_cb_index(learn, cb_name):
     return [i for i, e in enumerate(list(learn.cbs)) 

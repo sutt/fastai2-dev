@@ -41,7 +41,8 @@ from .trainutils import (piece_class_parse,
 from .learnutils import (get_cb,
                          TestSetRecorder,
                          learner_add_testset,
-                        ignore_first_testset_callback
+                         learner_add_testset_2,
+                         ignore_first_testset_callback
 
                         )
 
@@ -407,7 +408,8 @@ def run_exp(params,
     
     learn = cnn_learner(train_dl, _model_arch, metrics=learn_metrics)
 
-    learner_add_testset(learn, test_dl, b_cuda=b_cuda)
+    # learner_add_testset(learn, test_dl, b_cuda=b_cuda)
+    learner_add_testset_2(learn, test_path, b_cuda=b_cuda)
 
     learn.add_cb(TestSetRecorder())
 
