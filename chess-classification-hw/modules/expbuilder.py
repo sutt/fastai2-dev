@@ -52,6 +52,8 @@ from .learnutils import (get_cb,
 
 def save_learner_logs(learn, 
                       name,
+                      b_return_valid=False,
+                      input_df_valid=None,
                       log_path='../models/model-logs/',
                       b_msg=False,
                       msg_cols=['test_loss']
@@ -63,11 +65,20 @@ def save_learner_logs(learn,
     df_valid = pd.DataFrame(valid_recorder.values, 
                             columns = valid_recorder.metric_names[1:-1])
 
+    # use this to capture the df after the first training loop and save for later
+    if b_return_valid: return df_valid
+
     cols = ['loss']
     cols += [e.name for e in valid_recorder.metrics]
     cols = ['test_' + col for col in cols]
 
     df_test = pd.DataFrame(test_recorder.values, columns = cols)
+
+    if input_df_valid is not None:
+        try:
+            df_valid = pd.concat((input_df_valid, df_valid), axis=0)
+        except:
+            print('could not concatenate df_valid')
 
     df_valid.to_csv(log_path + name + '_valid.csv', index=False)
     df_test.to_csv(log_path + name + '_test.csv', index=False)
@@ -76,9 +87,9 @@ def save_learner_logs(learn,
         print('Finished with:\n')
         try:
             _cols = [e for e in msg_cols if e in df_valid.columns]
-            print(df_valid.iloc[-1:,].loc[_cols])
+            print(df_valid.iloc[-1,:].loc[_cols].to_dict())
             _cols = [e for e in msg_cols if e in df_test.columns]
-            print(df_test.iloc[-1:,].loc[_cols])
+            print(df_test.iloc[-1,:].loc[_cols].to_dict())
         except:
             print('error printing stats from run')
 
@@ -129,10 +140,39 @@ def save_learner_params(d_params,
     with open(log_path + name + '_params.json', 'w') as f:
         json.dump(d_params, f)
 
+def make_new_fn(fn_dir, name_base):
+    ''' 
+        "bn"   {...} -> "bn-0"
+
+        "bn" {bn-1, bn-3, misc-2} -> "bn-4"
+
+    '''
+    fns = os.listdir(fn_dir)
+
+    elems = [fn for fn in fns if name_base in fn]
+
+    def get_num(s):
+        try: 
+            num = s.split('-')[-1] 
+            num = int(num)
+            return num
+        except: 
+            return -1
+        
+    elems = [get_num(e) for e in elems]
+    
+    if len(elems) == 0:
+        new_num = 0
+    else:
+        new_num = max(elems) + 1
+
+    return name_base + '-' + str(new_num + 1)
+
 
 def save_learner(learn,
                 name_base,
                 d_params,
+                df_valid_1 = None,
                 log_path='../models/model-logs/',
                 pkl_path='../models/',
                 b_msg=False,
@@ -147,7 +187,7 @@ def save_learner(learn,
                 <name>_residuals.csv - pred, actual, loss on each test set item
                 <name>_params.json  - params dict
 
-                <name> = <name_base>-<N>  where <N> is found via `new_file`
+                <name> = <name_base>-<N>  where <N> is found via `make_new_fn`
 
             pkl_path/
                 <name>.pkl         - exported learner
@@ -155,18 +195,15 @@ def save_learner(learn,
     '''
     
     # use log_path to find a new_name by adding a number to 
-    # the end of name_base. here we use _valid.csv log file to check
-    # for the new_name
-    fns = os.listdir(log_path)
-    new_name = new_file(fns, 
-                        prefix=name_base + '_valid',
-                        ext='.csv',
-                        new_ext=None,  # returns new_name w/o ext
-                        )
-    
+    # the end of name_base. here we use _valid.csv log file 
+    # to check for the new_name
+    new_name = make_new_fn(log_path, name_base)
+    if b_msg: print(f"saving to name_base: {new_name}")
+
     save_learner_params(d_params, new_name, log_path=log_path)
     
-    save_learner_logs(learn, new_name, log_path=log_path, b_msg=b_msg, msg_cols=msg_cols)
+    save_learner_logs(learn, new_name, log_path=log_path, input_df_valid=df_valid_1,
+                      b_msg=b_msg, msg_cols=msg_cols)
 
     save_residual_log(learn, new_name, log_path=log_path)
 
@@ -294,8 +331,6 @@ def run_exp(params,
     
     if _custom_train_fnames == 'stratify':
         train_fnames =  stratify_sample(**_custom_train_fnames_args)
-        print(len(train_fnames))
-    
     
     
     Crop = Resize(128, _resize_method, pad_mode=_pad_mode)
@@ -317,10 +352,9 @@ def run_exp(params,
                     seed=_train_seed,
                     label_func=piece_class_parse, 
                     item_tfms=Crop,
-                    # batch_tfms=Augs,
+                    batch_tfms=Augs,
                     bs=_bs,
                     )
-    # print(train_dl.train.items)
 
     test_dl = build_dl(_test_path)
 
@@ -345,6 +379,8 @@ def run_exp(params,
 
     with learn.no_logging(): learn.fit_one_cycle(_fit_one_cycle_epochs)
 
+    valid_df_1 = save_learner_logs(learn, name="dummy", b_return_valid=True)
+
     with learn.no_logging(): learn.fine_tune(_fine_tune_epochs)
 
     t1 = time.time()
@@ -354,6 +390,7 @@ def run_exp(params,
     save_learner(learn, 
                 name_base=name_base, 
                 d_params=save_params,
+                df_valid_1=valid_df_1,
                 b_msg=b_msg,
                 msg_cols=msg_cols,
                 )
