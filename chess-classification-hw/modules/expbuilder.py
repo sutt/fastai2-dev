@@ -252,6 +252,8 @@ def save_learner(learn,
     
 
 default_params = {
+        '_expdesign_name':          'notnamed',
+        '_condition_name':          'notnamed',
         '_train_name':              'rf-v1-crops',
         '_test_name':               'test-regulation-2-all',
         '_train_path':              Path('../../../rf-chess-data/cropped_v1/'),
