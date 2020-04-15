@@ -8,14 +8,15 @@ import matplotlib.pyplot as plt
 # img_dir = '../../rf-chess-data/roboflow/export/'
 # img_fns = os.listdir(img_dir)
 # output_dir = 'data/rf-annotate/'
-# annotate_dir = '../../rf-chess-data/roboflow/export/'
-# annotate_fn = '_annotations.coco.json'
+annotate_dir = '../../../rf-chess-data/roboflow/export/'
+annotate_fn = '_annotations_v2.coco.json'
 
-annotate_dir = '../../../other-chess-data/regulation-pieces-1/originals/data/'
-annotate_fn = 'instances.json'
+# annotate_dir = '../../../other-chess-data/regulation-pieces-1/originals/data/'
+# annotate_fn = 'instances.json'
 
-output_dir = '../data/other-annotate-rp1/'
-output_fn = output_dir + 'data_v1.csv'
+# output_dir = '../data/other-annotate-rp1/'
+output_dir = '../data/rf-annotate/'
+output_fn = output_dir + 'data_v1.1.csv'
 
 
 with open(Path(annotate_dir, annotate_fn), 'r') as f:

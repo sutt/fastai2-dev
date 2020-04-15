@@ -19,14 +19,14 @@ def crop_img(img, bbox):
 # img_dir = Path('../../rf-chess-data/export/')
 
 # locally
-# img_dir = Path('../../rf-chess-data/roboflow/export')
-# save_dir = Path('../../rf-chess-data/cropped_v1')
-# meta_df = 'data/rf-annotate/data_v1.csv'
+img_dir = Path('../../../rf-chess-data/roboflow/export')
+save_dir = Path('../../../rf-chess-data/cropped_verify')
+meta_df = '../data/rf-annotate/data_v1.1.csv'
 
 # other
-img_dir = Path('../../../other-chess-data/regulation-pieces-1/originals/')
-save_dir = Path('../../../other-chess-data/regulation-pieces-1/crops')
-meta_df = '../data/other-annotate-rp1/data_v1.csv'
+# img_dir = Path('../../../other-chess-data/regulation-pieces-1/originals/')
+# save_dir = Path('../../../other-chess-data/regulation-pieces-1/crops')
+# meta_df = '../data/other-annotate-rp1/data_v1.csv'
 
 
 

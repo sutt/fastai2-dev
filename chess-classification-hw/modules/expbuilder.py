@@ -39,6 +39,7 @@ from .trainutils import (piece_class_parse,
                         )
 
 from .learnutils import (get_cb,
+                         get_cb_index,
                          TestSetRecorder,
                          learner_add_testset,
                          learner_add_testset_2,
@@ -51,39 +52,9 @@ from .learnutils import (get_cb,
 
 
 '''
-class LearnerLogs:
 
-    def __init__(self):
-        self.df_valid = None
-        self.df_test = None
-
-    def get_learner_logs(self, learn):
-        
-        valid_recorder = get_cb(learn, 'Recorder')
-        test_recorder =  get_cb(learn, 'TestSetRecorder')
-
-        # remove `epoch` + `time`, get all customizable metrics
-        cols = valid_recorder.metric_names[1:-1]
-        
-        df_valid = pd.DataFrame(valid_recorder.values, columns = cols)
-        
-        cols = ['loss']
-        cols += [e.name for e in valid_recorder.metrics]
-        cols = ['test_' + col for col in cols]
-
-        df_test = pd.DataFrame(test_recorder.values, columns = cols)
-
-        return df_valid, df_test
-
-    def save_learner_log_values(self, learn):
-        
-        df_valid, df_test = self.get_learner_logs(learn)
-
-        self.df_valid = df_valid
-        self.df_test = df_test
-
-    def balh(self):
-        pass
+def rm_test_recorder(learn):
+    learn.cbs.pop(get_cb_index(learn,'TestSetRecorder'))
 
 
 def save_learner_logs(learn, 
@@ -298,7 +269,7 @@ default_params = {
         '_p_lighting':              0.75,
         '_custom_crop':             None,   'my-top-crop'
         '_custom_train_fnames':     None,   'stratify'
-        '_custom_train_fnames_args': {},    {'path':_train_path, n:200, np_seed:42}
+        '_custom_train_fnames_args': {},    {'path':_train_path, 'n':200, 'np_seed':42}
     }
 
     # build args list macro
@@ -312,6 +283,7 @@ default_params = {
 
 def run_exp(params, 
             name_base,
+            b_ret=False,
             b_cuda=True,
             b_subcat_metrics=True,
             b_msg=True,
@@ -414,6 +386,9 @@ def run_exp(params,
     learner_add_testset_2(learn, _test_path, b_cuda=b_cuda)
 
     learn.add_cb(TestSetRecorder())
+
+    if b_ret:
+        return train_dl, learn
 
     ## Fit Learner ------------
 
