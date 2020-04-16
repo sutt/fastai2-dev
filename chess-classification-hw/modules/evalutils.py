@@ -79,3 +79,39 @@ def get_tbls(name, nums, log_dir='../models/model-logs/'):
         df_params = pd.concat((df_params,_df_params ), axis=0)
     
     return df_metrics, df_resid, df_params
+
+
+def conj_plot_data(exp_metrics, cmp_param):
+    
+    df_agg =pd.pivot(exp_metrics,
+                 index='exp_name', 
+                 columns='epoch', 
+                 values='test_accuracy')
+
+    df = exp_metrics.copy()
+    df = df[['exp_name', cmp_param]]
+    df = df.drop_duplicates()
+    df.index = df['exp_name']
+
+    colors = ['blue','orange','red','green','magenta','yellow','black',]
+
+    unique_vals = df[cmp_param].unique()
+    print(unique_vals)
+
+    def foo(x):
+        if pd.isna(x): return 'nan'
+        else: return x
+
+    color_ind = pd.Series(colors[:len(unique_vals)] ,
+                        index=[foo(e) for e in unique_vals])
+                        # index=unique_vals)
+
+    df = df.merge(color_ind.rename('color'),
+            how='left', 
+            left_on=cmp_param, 
+            right_index=True
+            )
+
+    df_agg = df_agg.join(df[['color']], on='exp_name', )
+
+    return df_agg, color_ind
