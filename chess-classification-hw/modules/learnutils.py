@@ -24,7 +24,7 @@ from fastai2.vision.all import (get_image_files,
                                 )
 
 class TestSetRecorder(Callback):
-    def __init__(self, ds_idx=2, **kwargs):
+    def __init__(self, ds_idx=2, b_logger=False, **kwargs):
         self.values = []
         self.ds_idx = ds_idx
         self.counter = 0
@@ -38,12 +38,16 @@ class TestSetRecorder(Callback):
         self.learn._do_epoch_validate(ds_idx=self.ds_idx, dl=None)
         self.values.append(self.recorder.log[len(old_log):])
         self.recorder.log = old_log
+        if b_logger:
+            self.log = self.recorder.log[len(old_log):]
+            self.logger(self.log)
 
 
 def learner_add_testset(learn, test_dl, b_cuda=False):
     new_dl = DataLoaders(learn.dls[0], learn.dls[1], test_dl.train)
     if b_cuda: new_dl.cuda()
     learn.dls = new_dl
+    
 
 def learner_add_testset_2(learn, test_path, b_cuda=False):
     

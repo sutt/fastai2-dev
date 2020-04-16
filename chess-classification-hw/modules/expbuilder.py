@@ -7,6 +7,10 @@ from pathlib import Path
 import torch
 from sklearn.metrics import accuracy_score
 import pandas as pd
+
+torch.backends.cudnn.deterministic = True
+torch.backends.cudnn.benchmark = False
+
 from fastai2.vision.all import (get_image_files, 
                                 ImageDataLoaders,
                                 RandomResizedCrop,
@@ -380,7 +384,7 @@ def run_exp(params,
     else:
         learn_metrics = [accuracy]
     
-    learn = cnn_learner(train_dl, _model_arch, metrics=learn_metrics)
+    learn = cnn_learner(train_dl, _model_arch, metrics=learn_metrics, )
 
     # learner_add_testset(learn, test_dl, b_cuda=b_cuda)
     learner_add_testset_2(learn, _test_path, b_cuda=b_cuda)
