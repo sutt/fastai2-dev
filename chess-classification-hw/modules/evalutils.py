@@ -81,12 +81,12 @@ def get_tbls(name, nums, log_dir='../models/model-logs/'):
     return df_metrics, df_resid, df_params
 
 
-def conj_plot_data(exp_metrics, cmp_param):
+def conj_plot_data(exp_metrics, cmp_param, values='test_accuracy'):
     
     df_agg =pd.pivot(exp_metrics,
                  index='exp_name', 
                  columns='epoch', 
-                 values='test_accuracy')
+                 values=values)
 
     df = exp_metrics.copy()
     df = df[['exp_name', cmp_param]]

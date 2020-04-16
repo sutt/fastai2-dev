@@ -265,6 +265,7 @@ default_params = {
         '_fine_tune_epochs':        15,
         '_train_seed':              0,
         '_valid_pct':               0.2,
+        '_rm_norm':                 True,   False
         '_mult':                    1.0,  up to 2.0
         '_max_lighting':            0.9,   up to 0.95
         '_max_warp':                0.4,    
@@ -377,6 +378,7 @@ def run_exp(params,
                     item_tfms=Crop,
                     batch_tfms=Augs,
                     bs=_bs,
+                    # num_workers=0,
                     )
 
     test_dl = build_dl(_test_path)
