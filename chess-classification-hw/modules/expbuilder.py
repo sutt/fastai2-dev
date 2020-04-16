@@ -289,6 +289,7 @@ def run_exp(params,
             name_base,
             b_ret=False,
             b_cuda=True,
+            b_testset_logger=False,
             b_subcat_metrics=True,
             b_msg=True,
             msg_cols=['valid_loss', 'accuracy', 'test_loss', 'test_accuracy']
@@ -389,7 +390,7 @@ def run_exp(params,
     # learner_add_testset(learn, test_dl, b_cuda=b_cuda)
     learner_add_testset_2(learn, _test_path, b_cuda=b_cuda)
 
-    learn.add_cb(TestSetRecorder())
+    learn.add_cb(TestSetRecorder(b_logger=b_testset_logger))
 
     if b_ret:
         return train_dl, learn
