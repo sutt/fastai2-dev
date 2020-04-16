@@ -6,6 +6,7 @@ from pathlib import Path
 import torch
 from sklearn.metrics import accuracy_score
 # from .trainutils import ()
+from fastcore.transform import Pipeline
 from fastai2.vision.all import (get_image_files, 
                                 ImageDataLoaders,
                                 RandomResizedCrop,
