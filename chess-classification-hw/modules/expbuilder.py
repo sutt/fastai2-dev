@@ -239,7 +239,8 @@ default_params = {
         '_fine_tune_epochs':        15,
         '_train_seed':              0,
         '_valid_pct':               0.2,
-        '_rm_norm':                 True,
+        '_rm_norm':                 False,
+        '_learn_norm':              False,
         '_mult':                    1.0,
         '_max_lighting':            0.9,
         '_max_warp':                0.4,
@@ -265,7 +266,8 @@ default_params = {
         '_fine_tune_epochs':        15,
         '_train_seed':              0,
         '_valid_pct':               0.2,
-        '_rm_norm':                 True,   False
+        '_rm_norm':                 False,   True
+        '_learn_norm':              False,   True
         '_mult':                    1.0,  up to 2.0
         '_max_lighting':            0.9,   up to 0.95
         '_max_warp':                0.4,    
@@ -326,6 +328,7 @@ def run_exp(params,
     _train_seed = params.get('_train_seed')
     _valid_pct = params.get('_valid_pct')
     _rm_norm = params.get('_rm_norm')
+    _learn_norm = params.get('_learn_norm')
     _mult = params.get('_mult')
     _max_lighting = params.get('_max_lighting')
     _max_warp = params.get('_max_warp')
@@ -390,7 +393,8 @@ def run_exp(params,
     else:
         learn_metrics = [accuracy]
     
-    learn = cnn_learner(train_dl, _model_arch, metrics=learn_metrics, )
+    learn = cnn_learner(train_dl, _model_arch, metrics=learn_metrics,
+                        normalize=_learn_norm)
 
     learner_add_testset_2(learn, _test_path, b_cuda=b_cuda)
 
