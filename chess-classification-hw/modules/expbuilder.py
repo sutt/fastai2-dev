@@ -47,7 +47,8 @@ from .learnutils import (get_cb,
                          TestSetRecorder,
                          learner_add_testset,
                          learner_add_testset_2,
-                         ignore_first_testset_callback
+                         ignore_first_testset_callback,
+                         learner_rm_norm
 
                         )
 
@@ -238,6 +239,7 @@ default_params = {
         '_fine_tune_epochs':        15,
         '_train_seed':              0,
         '_valid_pct':               0.2,
+        '_rm_norm':                 True,
         '_mult':                    1.0,
         '_max_lighting':            0.9,
         '_max_warp':                0.4,
@@ -322,6 +324,7 @@ def run_exp(params,
     _fine_tune_epochs = params.get('_fine_tune_epochs')
     _train_seed = params.get('_train_seed')
     _valid_pct = params.get('_valid_pct')
+    _rm_norm = params.get('_rm_norm')
     _mult = params.get('_mult')
     _max_lighting = params.get('_max_lighting')
     _max_warp = params.get('_max_warp')
@@ -387,8 +390,10 @@ def run_exp(params,
     
     learn = cnn_learner(train_dl, _model_arch, metrics=learn_metrics, )
 
-    # learner_add_testset(learn, test_dl, b_cuda=b_cuda)
     learner_add_testset_2(learn, _test_path, b_cuda=b_cuda)
+
+    if _rm_norm: 
+        learner_rm_norm(learn)
 
     learn.add_cb(TestSetRecorder(b_logger=b_testset_logger))
 

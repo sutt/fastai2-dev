@@ -96,7 +96,6 @@ def conj_plot_data(exp_metrics, cmp_param):
     colors = ['blue','orange','red','green','magenta','yellow','black',]
 
     unique_vals = df[cmp_param].unique()
-    print(unique_vals)
 
     def foo(x):
         if pd.isna(x): return 'nan'

@@ -29,6 +29,7 @@ class TestSetRecorder(Callback):
         self.ds_idx = ds_idx
         self.counter = 0
         self.skip_counter = None
+        self.b_logger = b_logger
     
     def after_epoch(self):
         self.counter += 1
@@ -38,7 +39,7 @@ class TestSetRecorder(Callback):
         self.learn._do_epoch_validate(ds_idx=self.ds_idx, dl=None)
         self.values.append(self.recorder.log[len(old_log):])
         self.recorder.log = old_log
-        if b_logger:
+        if self.b_logger:
             self.log = self.recorder.log[len(old_log):]
             self.logger(self.log)
 
@@ -57,6 +58,19 @@ def learner_add_testset_2(learn, test_path, b_cuda=False):
     new_dl = DataLoaders(learn.dls[0], learn.dls[1], built_test)
     if b_cuda: new_dl.cuda()
     learn.dls = new_dl
+
+def learner_rm_norm(learn):
+    ''' remove Normalize from after_batch in all dl's '''
+
+    pipe0 = learn.dls[0].after_batch
+
+    pipe0_prime = Pipeline()
+    pipe0_prime.add(pipe0[0])
+    pipe0_prime.add(pipe0[1])
+    pipe0_prime.add(pipe0[2])
+
+    for i, _ in enumerate(learn.dls):
+        learn.dls[i].after_batch = pipe0_prime
 
 
 def get_cb_index(learn, cb_name):
