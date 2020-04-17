@@ -28,6 +28,7 @@ from fastai2.vision.all import (get_image_files,
                                 Callback,
                                 ResizeMethod,
                                 Resize,
+                                RandomErasing,
 
                                 )
 
@@ -249,6 +250,9 @@ default_params = {
         '_pad_mode':                'reflection',
         '_bs':                      32,
         '_p_lighting':              0.75,
+        '_aug_re':                  False,
+        '_re_params':               {'p':0.5, 'sl':0.0, 'sh':0.3, 
+                                    'min_aspect':0.3 ,'max_count':1},
         '_custom_crop':             None,
         '_custom_train_fnames':     None,
         '_custom_train_fnames_args': {},
@@ -276,6 +280,9 @@ default_params = {
         '_pad_mode':                'relection',  'zeros'
         '_bs':                      32,
         '_p_lighting':              0.75,
+        '_aug_re':                  False,  True
+        '_re_params':               {'p':0.5, 'sl':0.0, 'sh':0.3, 
+                                    'min_aspect':0.3 ,'max_count':1},
         '_custom_crop':             None,   'my-top-crop'
         '_custom_train_fnames':     None,   'stratify'
         '_custom_train_fnames_args': {},    {'path':_train_path, 'n':200, 'np_seed':42}
@@ -337,6 +344,8 @@ def run_exp(params,
     _pad_mode = params.get('_pad_mode')
     _bs = params.get('_bs')
     _p_lighting = params.get('_p_lighting')
+    _aug_re = params.get('_aug_re')
+    _re_params = params.get('_re_params')
     _custom_crop = params.get('_custom_crop')
     _custom_train_fnames = params.get('_custom_train_fnames')
     _custom_train_fnames_args = params.get('_custom_train_fnames_args')
@@ -371,6 +380,8 @@ def run_exp(params,
                           max_warp=_max_warp,
                           max_rotate=_max_rotate,
                          )
+    if _aug_re:
+        Augs.append(RandomErasing(**_re_params))
     
     train_dl = ImageDataLoaders.from_name_func(
                     _train_path, 
