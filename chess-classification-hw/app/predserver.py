@@ -31,7 +31,7 @@ sys.path.insert(0, '..')
 '''
 
 ap = argparse.ArgumentParser()
-ap.add_argument("--model", type=str, default="expmod-b-1.pkl")
+ap.add_argument("--model", type=str, default="base-learner-6.pkl")  # "expmod-b-1.pkl"
 ap.add_argument("--debug", action="store_true", default=False)
 ap.add_argument("--log", action="store_true", default=False)
 args = vars(ap.parse_args())

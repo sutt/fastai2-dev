@@ -29,7 +29,9 @@ from fastai2.vision.all import (get_image_files,
                                 ResizeMethod,
                                 Resize,
                                 RandomErasing,
-
+                                DataBlock,
+                                ImageBlock, CategoryBlock
+                                
                                 )
 
 from .tfmsutils import MyResizeDeterm
@@ -228,6 +230,10 @@ def save_learner(learn,
     save_learner_pkl(learn, new_name, pkl_path=pkl_path)
     
 
+def weight_func(item_path):
+    return 3 if 'queen' in item_path.name else 1
+
+
 default_params = {
         '_expdesign_name':          'notnamed',
         '_condition_name':          'notnamed',
@@ -242,6 +248,8 @@ default_params = {
         '_valid_pct':               0.2,
         '_rm_norm':                 False,
         '_learn_norm':              False,
+        '_weighted_dl':             False,
+        '_weight_func':             weight_func,
         '_mult':                    1.0,
         '_max_lighting':            0.9,
         '_max_warp':                0.4,
@@ -336,6 +344,8 @@ def run_exp(params,
     _valid_pct = params.get('_valid_pct')
     _rm_norm = params.get('_rm_norm')
     _learn_norm = params.get('_learn_norm')
+    _weighted_dl = params.get('_weighted_dl')
+    _weight_func = params.get('_weight_func')
     _mult = params.get('_mult')
     _max_lighting = params.get('_max_lighting')
     _max_warp = params.get('_max_warp')
@@ -394,6 +404,32 @@ def run_exp(params,
                     bs=_bs,
                     # num_workers=0,
                     )
+    
+    
+    if _weighted_dl:  ## weightedDL module (optional) ------------------
+
+        after_item, after_batch = train_dl.after_item, train_dl.after_batch
+
+        def my_piece_class_parse(e): return piece_class_parse(e.name)
+
+        train_db = DataBlock(
+            blocks = (ImageBlock, CategoryBlock),
+            get_items = get_image_files,
+            get_y = my_piece_class_parse,
+        )
+
+        train_ds = train_db.datasets(_train_path)
+
+        wgts = [_weight_func(it) for it in train_ds.train.items]
+
+        train_dl = train_ds.weighted_dataloaders(          
+                        wgts=wgts,
+                        bs=_bs,
+                        after_item = after_item,
+                        after_batch = after_batch,
+                        valid_pct = _valid_pct,
+                        seed=_train_seed,
+                        )
 
     test_dl = build_dl(_test_path)
 
