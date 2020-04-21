@@ -30,8 +30,9 @@ from fastai2.vision.all import (get_image_files,
                                 Resize,
                                 RandomErasing,
                                 DataBlock,
-                                ImageBlock, CategoryBlock
-                                
+                                ImageBlock, CategoryBlock,
+                                PILImageBW
+
                                 )
 
 from .tfmsutils import MyResizeDeterm
@@ -250,6 +251,7 @@ default_params = {
         '_learn_norm':              False,
         '_weighted_dl':             False,
         '_weight_func':             weight_func,
+        '_bw_images':               False,
         '_mult':                    1.0,
         '_max_lighting':            0.9,
         '_max_warp':                0.4,
@@ -346,6 +348,7 @@ def run_exp(params,
     _learn_norm = params.get('_learn_norm')
     _weighted_dl = params.get('_weighted_dl')
     _weight_func = params.get('_weight_func')
+    _bw_images = params.get('_bw_images')
     _mult = params.get('_mult')
     _max_lighting = params.get('_max_lighting')
     _max_warp = params.get('_max_warp')
@@ -430,6 +433,25 @@ def run_exp(params,
                         valid_pct = _valid_pct,
                         seed=_train_seed,
                         )
+
+    if _bw_images:
+
+        def my_piece_class_parse(e): return piece_class_parse(e.name)
+
+        dblock = DataBlock(
+            (ImageBlock(PILImageBW),CategoryBlock),
+            get_items=get_image_files,
+            get_y=my_piece_class_parse,
+            item_tfms=Crop,
+            batch_tfms=Augs,
+            )
+
+        train_dl = dblock.dataloaders(
+                                _train_path, 
+                                seed=_train_seed,
+                                valid_pct=_valid_pct,
+                                bs=_bs,
+                                )
 
     test_dl = build_dl(_test_path)
 
