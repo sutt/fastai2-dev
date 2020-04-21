@@ -42,7 +42,8 @@ from .trainutils import (piece_class_parse,
                         stratify_sample,
                         build_dl,
                         subcat_color_acc,
-                        subcat_piece_acc
+                        subcat_piece_acc,
+                        my_piece_class_parse
                         
                         )
 
@@ -143,7 +144,10 @@ def save_learner_pkl( learn,
                       ):
     old_path = learn.path
     learn.path = Path(pkl_path)
-    learn.export(name + '.pkl')
+    try:
+        learn.export(name + '.pkl')
+    except:
+        print('failed to export model')
     learn.path = old_path
 
 
@@ -372,6 +376,7 @@ def run_exp(params,
     save_params['_train_path'] = str(save_params['_train_path'])
     save_params['_test_path'] =  str(save_params['_test_path'])
     save_params['_custom_train_fnames_args'] =  str(save_params['_custom_train_fnames_args'])
+    save_params['_weight_func'] = str(_weight_func.__name__)
     
 
     ## Build Data -----------
@@ -413,8 +418,6 @@ def run_exp(params,
 
         after_item, after_batch = train_dl.after_item, train_dl.after_batch
 
-        def my_piece_class_parse(e): return piece_class_parse(e.name)
-
         train_db = DataBlock(
             blocks = (ImageBlock, CategoryBlock),
             get_items = get_image_files,
@@ -435,8 +438,6 @@ def run_exp(params,
                         )
 
     if _bw_images:
-
-        def my_piece_class_parse(e): return piece_class_parse(e.name)
 
         dblock = DataBlock(
             (ImageBlock(PILImageBW),CategoryBlock),

@@ -29,6 +29,9 @@ def piece_class_parse(fn):
     fn = fn.split('.')[0]
     return fn
 
+def my_piece_class_parse(e): 
+    return piece_class_parse(e.name)
+
 
 def only_class_parse(fn):
     ''' 01415_white-rook.jpg -> rook '''
