@@ -33,3 +33,22 @@ def load_many_imgs(d, N=10):
 
     print(f"loaded {len(imgs)} images")
     return imgs
+
+def scree(learn):
+    
+    def foo(cv, ct):
+        plt.plot(pd.DataFrame(learn.recorder.values).iloc[:,cv], label='valid')
+        plt.plot((pd.DataFrame(learn.cbs[3].values).iloc[:,ct]),label='test' )
+    
+    foo(cv=2,ct=1)
+    plt.ylim(0,1)
+    plt.legend()
+    plt.title('acc')
+    plt.show()
+    
+    foo(cv=1,ct=0)
+    plt.legend()
+    plt.title('loss')
+    plt.ylim(0,3)
+    plt.show()
+    
