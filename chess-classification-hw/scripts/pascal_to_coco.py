@@ -171,7 +171,7 @@ def parseXmlFiles(xml_path):
 
 if __name__ == '__main__':
     
-    root_dir = '../../../other-chess-data/regulation-pieces-1/originals/data/'
+    root_dir = '../../../other-chess-data/regulation-pieces-3/originals/data/'
     xml_path = root_dir
     json_file = root_dir + 'instances.json'
     
