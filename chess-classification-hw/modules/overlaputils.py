@@ -15,6 +15,7 @@ def foo(
     crop_dir='../../../rf-chess-data/cropped_verify/',
     max_cols=15,
     thresh=10,
+    b_ret=False,
     ):
     
     bq = df[df['category_full_name'] == cat_name]
@@ -61,6 +62,8 @@ def foo(
 
     bq['twin_set_cluster'] = out
     bq['twin_set_cluster_obj'] = bq['twin_set_cluster'].map(str)
+
+    if b_ret: return bq
 
     amts = bq.groupby('twin_set_cluster_obj').agg('count').iloc[:,1]
 
