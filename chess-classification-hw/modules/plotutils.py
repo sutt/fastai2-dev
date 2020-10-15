@@ -2,6 +2,7 @@ import os
 import numpy as np
 from PIL import Image
 from matplotlib import pyplot as plt
+import pandas as pd
 
 def plot_many_imgs(imgs, titles=None):
     
@@ -49,9 +50,10 @@ class ScreePlot:
 
         if self.values is not None:
             valid_df = pd.concat((self.values, valid_df))
+            valid_df.reset_index()
 
         def foo(cv, ct):
-            plt.plot(valid_Df.iloc[:,cv], label='valid')
+            plt.plot(valid_df.iloc[:,cv], label='valid')
             plt.plot((test_df.iloc[:,ct]),label='test' )
         
         foo(cv=2,ct=1)
