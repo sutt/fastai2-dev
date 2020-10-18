@@ -1,0 +1,122 @@
+Major Points: (3 PR's worth)
+    - make non-threaded LanguageDataLoader
+        - find where threading happens?
+    - find where the np warning is coming from
+    - get the activation stats to work
+
+=====WarningMessage ==========================
+
+    def add(self,t, items=None, train_setup=False):
+        t.setup(items, train_setup)    <- this line
+        self.fs.append(t)
+        
+    t = Tokenizer
+    
+    def tokenize_df(df, text_cols, n_workers=defaults.cpus, rules=None, mark_fields=None,
+                tok=None, res_col_name="text"):
+        "Tokenize texts in `df[text_cols]` in parallel using `n_workers`"
+        ...
+        res = df[other_cols].copy()
+        res[res_col_name] = outputs                                                      <- this line
+        
+        len(outputs)
+        20
+        len(outputs[0])
+        108
+        len(outputs[1])
+        462
+    
+    /home/user/anaconda3/envs/devfastai/lib/python3.7/site-packages/numpy/core/_asarray.py:83: VisibleDeprecationWarning: Creating an ndarray from ragged nested sequences (which is a list-or-tuple of lists-or-tuples-or ndarrays with different lengths or shapes) is deprecated. If you meant to do this, you must specify 'dtype=object' when creating the ndarray
+  return array(a, dtype, copy=False, order=order)
+
+======Threading===============================
+
+Where does the threading start?
+
+    class Datasets(FilteredBase):
+        "A dataset that creates a tuple from each `tfms`, passed through `item_tfms`"
+        def __init__(self, items=None, tfms=None, tls=None, n_inp=None, dl_type=None, **kwargs):
+            super().__init__(dl_type=dl_type)
+            self.tls  <- ** HERE **
+
+fastai.text.core.py:
+    def parallel_tokenize(items, tok=None, rules=None, n_workers=defaults.cpus, **kwargs):
+        "Calls optional `setup` on `tok` before launching `TokenizeWithRules` using `parallel_gen"
+        if tok is None: tok = WordTokenizer()
+        if hasattr(tok, 'setup'): tok.setup(items, rules)
+        return parallel_gen(TokenizeWithRules, items, tok=tok, rules=rules, n_workers=n_workers, **kwargs)
+
+fastcore.utils.py:
+    parallel_gen(cls, items, n_workers=defaults.cpus, **kwargs):
+        "Instantiate `cls` in `n_workers` procs & call each on a subset of `items` in parallel."
+        if n_workers==0:
+            yield from enumerate(list(cls(**kwargs)(items)))
+            return
+
+fastcore.foundations
+    defaults = SimpleNamespace()
+
+fastcore.utils
+    def num_cpus():
+        "Get number of cpus"
+        try:                   return len(os.sched_getaffinity(0))
+        except AttributeError: return os.cpu_count()
+
+    defaults.cpus = num_cpus()
+    
+    ...
+    
+    class ProcessPoolExecutor(concurrent.futures.ProcessPoolExecutor):
+    "Same as Python's ProcessPoolExecutor, except can pass `max_workers==0` for serial execution"
+    def __init__(self, max_workers=defaults.cpus, on_exc=print, pause=0, **kwargs):
+        if max_workers is None: max_workers=defaults.cpus
+        store_attr()
+
+
+======Hooks========================================
+output:
+0: [10, 72, 400]
+1: [10, 72, 1152])
+
+
+Where the hook fails to fire:
+
+    torch.nn..modules.module.Module._call_impl()
+
+def _call_impl(self, *input, **kwargs):
+    for hook in itertools.chain(
+            _global_forward_pre_hooks.values(),
+            self._forward_pre_hooks.values()):
+        result = hook(self, input)
+        if result is not None:
+            if not isinstance(result, tuple):
+                result = (result,)
+            input = result
+    if torch._C._get_tracing_state():
+        result = self._slow_forward(*input, **kwargs)
+    else:
+        result = self.forward(*input, **kwargs)
+    for hook in itertools.chain(
+            _global_forward_hooks.values(),
+            self._forward_hooks.values()):
+        hook_result = hook(self, input, result)
+        if hook_result is not None:
+            result = hook_result
+            
+
+Changing this to get it to run
+
+class WeightDropout(Module):
+    "A module that wraps another layer in which some weights will be replaced by 0 during training."
+
+    def __init__(self, module, weight_p, layer_names='weight_hh_l0'):
+    
+    ...
+    
+    def forward(self, *args):
+        self._setweights()
+        with warnings.catch_warnings():
+            # To avoid the warning that comes because the weights aren't flattened.
+            warnings.simplefilter("ignore", category=UserWarning)
+            return self.module(*args)
+            # return self.module.forward(*args)
